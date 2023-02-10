@@ -1,58 +1,55 @@
 package com.bridgelabz;
 
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class CabInvoiceMain {
-    private static final int COST_PER_TIME=1;
-    private static final double MIN_COST_PER_KM=10;
-    private static final double MIN_FARE=5;
+    private static final double MIN_COST_PER_KM_FOR_NORMAL_RIDE = 10;
+    private static final int COST_PER_TIME_FOR_NORMAL_RIDE = 1;
+    private static final double MIN_FARE_FOR_NORMAL_RIDE = 5;
+    public static final double MIN_COST_PER_KM_FOR_PREMIUM_RIDE = 15;
+    public static final double COST_PER_TIME_FOR_PREMIUM_RIDE = 2;
+    public static final double MIN_FARE_FOR_PREMIUM_RIDE = 20;
 
-    public double calculateFare(double distance, int time) {
-        double totalFare = distance * MIN_COST_PER_KM + time * COST_PER_TIME;
-        return Math.max(totalFare, MIN_FARE);
-    }
-
-    public InVoiceSummary calculateFare(Ride[] ride1){
-        double  totalFare=0;
-        for (Ride ride:ride1){
-            totalFare+=this.calculateFare(ride.getDistance, ride.getTime);
+    public double calculateTotalFare(double distance, int time, String rideType) {
+        if (rideType.equalsIgnoreCase("Normal Ride")) {
+            double totalFare = distance * MIN_COST_PER_KM_FOR_NORMAL_RIDE + time * COST_PER_TIME_FOR_NORMAL_RIDE;
+            return Math.max(totalFare, MIN_FARE_FOR_NORMAL_RIDE);
+        } else if (rideType.equalsIgnoreCase("Premium")) {
+            double totalFare = distance * MIN_COST_PER_KM_FOR_PREMIUM_RIDE + time * COST_PER_TIME_FOR_PREMIUM_RIDE;
+            return Math.max(totalFare, MIN_FARE_FOR_PREMIUM_RIDE);
+        } else {
+            System.out.println("Please Enter Proper Customer Type");
+            return 0.0;
         }
-        return new InVoiceSummary(ride1.length, totalFare);
     }
 
-    public double calculateTotalFare(Ride[] ride1) {
+    public double calculateFare(Ride[] ride1, String rideType) {
         double totalFare = 0.0;
+        if (rideType.equalsIgnoreCase("Normal Ride")) {
+            for (Ride ride : ride1) {
+                totalFare = calculateTotalFare(ride.getDistance(), (int) ride.getTime(), rideType);
+            }
+            return totalFare;
+        }else if(rideType.equalsIgnoreCase("Premium Ride"));
         for (Ride ride : ride1) {
-            totalFare = calculateFare(ride.getDistance(), (int) ride.getTime());
+            totalFare += calculateTotalFare(ride.getDistance(), (int) ride.getTime(), rideType);
         }
         return totalFare;
-
     }
 
-    public InVoiceSummary getInvoice(int userId) {
-        Map<Integer, Ride[]> map = new HashMap<Integer, Ride[]>();
-        Ride[] rides2 = {new Ride(2.0, 5),
-                new Ride(0.1, 1)
-        };
-        Ride[] rides3 = {new Ride(5.0, 10),
-                new Ride(1, 1)
-        };
-
-        Ride[] rides4 = {new Ride(8.0, 15),
-                new Ride(1, 10)
-        };
-        map.put(1, rides2);
-        map.put(2, rides3);
-        map.put(3, rides4);
-
-        for (Map.Entry<Integer, Ride[]> entry : map.entrySet()) {
-            if (userId == entry.getKey()) {
-                System.out.println(entry.getKey());
-                Ride[] ridesArray = entry.getValue();
-                return calculateFare(ridesArray);
+    public InVoiceSummary calculateTotalFare(Ride[] ride1, String rideType) {
+        double totalFare = 0.0;
+        if (rideType.equalsIgnoreCase("Normal Ride")) {
+            for (Ride ride : ride1) {
+                totalFare += calculateTotalFare(ride.getDistance(), (int) ride.getTime(), rideType);
+            }
+        } else if (rideType.equalsIgnoreCase("Premium Ride")) {
+            for (Ride ride : ride1) {
+                totalFare += calculateTotalFare(ride.getDistance(), (int) ride.getTime(), rideType);
             }
         }
-        return null;
+        return new InVoiceSummary(ride1.length, totalFare, rideType);
     }
 }
